@@ -63,12 +63,9 @@ mod nb {
 
 mod blocking {
     use super::super::{FrameSize, Instance, Spi};
-    use embedded_hal_one::spi::{
-        blocking::{SpiBus, SpiBusFlush, SpiBusRead, SpiBusWrite},
-        nb::FullDuplex,
-    };
+    use embedded_hal_one::spi::blocking::{SpiBus, SpiBusFlush, SpiBusRead, SpiBusWrite};
 
-    impl<SPI, const BIDI: bool, W: FrameSize + 'static> SpiBus<W> for Spi<SPI, BIDI, W>
+    impl<SPI, W: FrameSize + 'static> SpiBus<W> for Spi<SPI, false, W>
     where
         SPI: Instance,
     {
@@ -95,14 +92,7 @@ mod blocking {
         SPI: Instance,
     {
         fn write(&mut self, words: &[W]) -> Result<(), Self::Error> {
-            for word in words {
-                nb::block!(self.write_nonblocking(*word))?;
-                if !BIDI {
-                    nb::block!(self.read_nonblocking())?;
-                }
-            }
-
-            Ok(())
+            self.write(words)
         }
     }
 
@@ -111,12 +101,7 @@ mod blocking {
         SPI: Instance,
     {
         fn read(&mut self, words: &mut [W]) -> Result<(), Self::Error> {
-            for word in words {
-                nb::block!(<Self as FullDuplex<W>>::write(self, W::default()))?;
-                *word = nb::block!(<Self as FullDuplex<W>>::read(self))?;
-            }
-
-            Ok(())
+            self.read(words)
         }
     }
 }

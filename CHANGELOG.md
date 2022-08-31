@@ -19,8 +19,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Cleanups [#595]
  - Fix comlementary for independent channels [#599] [#603]
  - I2c dma can now use single DMA channel for TX or RX only [#598]
+ - SPI bidi takes 2 pins [#526]
  - `ws2812::prerendered` in example
 
+[#526]: https://github.com/stm32-rs/stm32f4xx-hal/pull/526
 [#585]: https://github.com/stm32-rs/stm32f4xx-hal/pull/585
 [#593]: https://github.com/stm32-rs/stm32f4xx-hal/pull/593
 [#594]: https://github.com/stm32-rs/stm32f4xx-hal/pull/594
@@ -34,6 +36,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [#609]: https://github.com/stm32-rs/stm32f4xx-hal/pull/609
 [#611]: https://github.com/stm32-rs/stm32f4xx-hal/pull/611
 [#614]: https://github.com/stm32-rs/stm32f4xx-hal/pull/614
+[#615]: https://github.com/stm32-rs/stm32f4xx-hal/pull/615
 
 ## [v0.15.0] - 2023-03-13
 
@@ -84,6 +87,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  - Add missing timer pins [#536]
  - Revised temperature sensor input pins for all MCUs [#529]
  - Support `u16` read/write for SPI
+ - 
  - Use `bool` for BIDI mode type
  - `PwmHz::get_period`: fix computation of return value, prevent division by zero
  - apply #[inline] attribute to bitbanding functions [#517]
@@ -358,7 +362,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [breaking-change] Change `Pin<Output<OpenDrain>>::internal_pull_up` signature from `(&mut self, _: bool) -> ()`
   to `(self, _: bool) -> Self`. [#399]
 
-[#367]: https://github.com/stm32-rs/stm32f4xx-hal/pull/367
+[#367]: https://github.com/stm32-rm32f4xx-hal/pull/367
 [#371]: https://github.com/stm32-rs/stm32f4xx-hal/pull/371
 [#383]: https://github.com/stm32-rs/stm32f4xx-hal/pull/383
 [#384]: https://github.com/stm32-rs/stm32f4xx-hal/pull/384

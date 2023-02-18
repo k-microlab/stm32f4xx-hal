@@ -3,7 +3,7 @@ use core::ops::Deref;
 use crate::pac::{self, i2c1};
 use crate::rcc::{Enable, Reset};
 
-use crate::gpio::{Const, OpenDrain, PinA, SetAlternate};
+use crate::gpio::{OpenDrain, PinA, SetAlternate};
 use crate::pac::RCC;
 
 use crate::rcc::Clocks;
@@ -85,8 +85,8 @@ pub trait Pins<I2C> {
 
 impl<I2C, SCL, SDA, const SCLA: u8, const SDAA: u8> Pins<I2C> for (SCL, SDA)
 where
-    SCL: PinA<Scl, I2C, A = Const<SCLA>> + SetAlternate<SCLA, OpenDrain>,
-    SDA: PinA<Sda, I2C, A = Const<SDAA>> + SetAlternate<SDAA, OpenDrain>,
+    SCL: PinA<Scl, I2C, A = { SCLA }> + SetAlternate<SCLA, OpenDrain>,
+    SDA: PinA<Sda, I2C, A = { SDAA }> + SetAlternate<SDAA, OpenDrain>,
 {
     fn set_alt_mode(&mut self) {
         self.0.set_alt_mode();

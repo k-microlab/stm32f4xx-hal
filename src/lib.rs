@@ -1,5 +1,6 @@
 #![no_std]
 #![allow(non_camel_case_types)]
+#![feature(associated_const_equality)]
 
 #[cfg(not(feature = "device-selected"))]
 compile_error!(

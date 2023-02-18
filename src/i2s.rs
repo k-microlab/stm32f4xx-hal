@@ -3,7 +3,7 @@
 //! This module is only available if the `i2s` feature is enabled.
 
 use crate::gpio::marker::{Interruptable, Readable};
-use crate::gpio::{Const, NoPin, Pin, PinA, PushPull, SetAlternate};
+use crate::gpio::{NoPin, Pin, PinA, PushPull, SetAlternate};
 use crate::pac::{self, RCC};
 use crate::rcc;
 use crate::rcc::Clocks;
@@ -85,10 +85,10 @@ impl<
         const SDA: u8,
     > Pins<SPI> for (Pin<WSP, WSN, WSM>, CK, MCLK, SD)
 where
-    Pin<WSP, WSN, WSM>: PinA<Ws, SPI, A = Const<WSA>> + SetAlternate<WSA, PushPull>,
-    CK: PinA<Ck, SPI, A = Const<CKA>> + SetAlternate<CKA, PushPull>,
-    MCLK: PinA<Mck, SPI, A = Const<MCLKA>> + SetAlternate<MCLKA, PushPull>,
-    SD: PinA<Sd, SPI, A = Const<SDA>> + SetAlternate<SDA, PushPull>,
+    Pin<WSP, WSN, WSM>: PinA<Ws, SPI, A = { WSA }> + SetAlternate<WSA, PushPull>,
+    CK: PinA<Ck, SPI, A = { CKA }> + SetAlternate<CKA, PushPull>,
+    MCLK: PinA<Mck, SPI, A = { MCLKA }> + SetAlternate<MCLKA, PushPull>,
+    SD: PinA<Sd, SPI, A = { SDA }> + SetAlternate<SDA, PushPull>,
 {
     type WsPin = Pin<WSP, WSN, Ws>;
     fn set_alt_mode(&mut self) {

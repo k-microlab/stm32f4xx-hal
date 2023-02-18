@@ -3,7 +3,7 @@ use core::ops::Deref;
 use core::ptr;
 
 use crate::dma::traits::PeriAddress;
-use crate::gpio::{Const, NoPin, PinA, PushPull, SetAlternate};
+use crate::gpio::{NoPin, PinA, PushPull, SetAlternate};
 use crate::pac;
 
 /// Clock polarity
@@ -72,9 +72,9 @@ pub trait Pins<SPI> {
 impl<SPI, SCK, MISO, MOSI, const SCKA: u8, const MISOA: u8, const MOSIA: u8> Pins<SPI>
     for (SCK, MISO, MOSI)
 where
-    SCK: PinA<Sck, SPI, A = Const<SCKA>> + SetAlternate<SCKA, PushPull>,
-    MISO: PinA<Miso, SPI, A = Const<MISOA>> + SetAlternate<MISOA, PushPull>,
-    MOSI: PinA<Mosi, SPI, A = Const<MOSIA>> + SetAlternate<MOSIA, PushPull>,
+    SCK: PinA<Sck, SPI, A = { SCKA }> + SetAlternate<SCKA, PushPull>,
+    MISO: PinA<Miso, SPI, A = { MISOA }> + SetAlternate<MISOA, PushPull>,
+    MOSI: PinA<Mosi, SPI, A = { MOSIA }> + SetAlternate<MOSIA, PushPull>,
 {
     fn set_alt_mode(&mut self) {
         self.0.set_alt_mode();

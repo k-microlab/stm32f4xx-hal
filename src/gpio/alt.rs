@@ -1,8 +1,6 @@
 use super::{marker, Alternate, NoPin, OpenDrain, Pin, PinMode, PushPull};
 use crate::{gpio, i2c, i2s, pac, serial, spi};
 
-pub struct Const<const A: u8>;
-
 pub trait SetAlternate<const A: u8, Otype> {
     fn set_alt_mode(&mut self);
     fn restore_mode(&mut self);
@@ -50,7 +48,7 @@ impl<const P: char, const N: u8, const A: u8> SetAlternate<A, OpenDrain>
 }
 
 pub trait PinA<PIN, PER> {
-    type A;
+    const A: u8;
 }
 
 impl<PIN, PER> PinA<PIN, PER> for NoPin
@@ -58,7 +56,7 @@ where
     PIN: crate::Sealed,
     PER: crate::Sealed,
 {
-    type A = Const<0>;
+    const A: u8 = 0;
 }
 
 macro_rules! pin {
@@ -66,7 +64,7 @@ macro_rules! pin {
         $(
             $(
                 impl<MODE> PinA<$Pin, pac::$I2C> for gpio::$PX<MODE> {
-                    type A = Const<$A>;
+                    const A: u8 = $A;
                 }
             )*
         )*

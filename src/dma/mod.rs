@@ -22,8 +22,8 @@ use crate::{pac, rcc};
 pub mod traits;
 use crate::serial::RxISR;
 use traits::{
-    sealed::{Bits, Sealed},
-    Channel, DMASet, Direction, Instance, PeriAddress, SafePeripheralRead, Stream, StreamISR,
+    sealed::Bits, Channel, DMASet, Direction, Instance, PeriAddress, SafePeripheralRead, Stream,
+    StreamISR,
 };
 
 /// Errors.
@@ -241,14 +241,14 @@ pub type Stream6<DMA> = StreamX<DMA, 6>;
 /// Stream 7 on the DMA controller.
 pub type Stream7<DMA> = StreamX<DMA, 7>;
 
-impl<DMA> Sealed for StreamX<DMA, 0> {}
-impl<DMA> Sealed for StreamX<DMA, 1> {}
-impl<DMA> Sealed for StreamX<DMA, 2> {}
-impl<DMA> Sealed for StreamX<DMA, 3> {}
-impl<DMA> Sealed for StreamX<DMA, 4> {}
-impl<DMA> Sealed for StreamX<DMA, 5> {}
-impl<DMA> Sealed for StreamX<DMA, 6> {}
-impl<DMA> Sealed for StreamX<DMA, 7> {}
+impl<DMA> crate::Sealed for StreamX<DMA, 0> {}
+impl<DMA> crate::Sealed for StreamX<DMA, 1> {}
+impl<DMA> crate::Sealed for StreamX<DMA, 2> {}
+impl<DMA> crate::Sealed for StreamX<DMA, 3> {}
+impl<DMA> crate::Sealed for StreamX<DMA, 4> {}
+impl<DMA> crate::Sealed for StreamX<DMA, 5> {}
+impl<DMA> crate::Sealed for StreamX<DMA, 6> {}
+impl<DMA> crate::Sealed for StreamX<DMA, 7> {}
 
 /// Alias for a tuple with all DMA streams.
 pub struct StreamsTuple<DMA>(
@@ -284,7 +284,7 @@ impl<DMA: rcc::Enable + rcc::Reset> StreamsTuple<DMA> {
 
 impl<I: Instance, const S: u8> Stream for StreamX<I, S>
 where
-    Self: Sealed + StreamISR,
+    Self: crate::Sealed + StreamISR,
 {
     const NUMBER: usize = S as usize;
 
@@ -523,7 +523,7 @@ macro_rules! dma_stream {
         $feif:ident, $isr:ident, $tcisr:ident, $htisr:ident, $teisr:ident, $feisr:ident, $dmeisr:ident)),+
         $(,)*) => {
         $(
-            impl<I: Instance> StreamISR for StreamX<I, $number> where Self: Sealed {
+            impl<I: Instance> StreamISR for StreamX<I, $number> where Self: crate::Sealed {
 
                 #[inline(always)]
                 fn clear_interrupts(&mut self) {
@@ -1002,24 +1002,16 @@ where
     }
 }
 
-impl<STREAM, const CHANNEL: u8, PERIPHERAL, BUF> RxISR
-    for Transfer<STREAM, CHANNEL, PERIPHERAL, PeripheralToMemory, BUF>
+impl<STREAM, const CHANNEL: u8, PERIPHERAL, BUF>
+    Transfer<STREAM, CHANNEL, PERIPHERAL, PeripheralToMemory, BUF>
 where
     STREAM: Stream,
+    ChannelX<CHANNEL>: Channel,
     PERIPHERAL: PeriAddress + DMASet<STREAM, CHANNEL, PeripheralToMemory> + RxISR,
+    BUF: ReadBuffer<Word = <PERIPHERAL as PeriAddress>::MemSize>,
 {
-    /// Return true if the line idle status is set
-    fn is_idle(&self) -> bool {
-        self.peripheral.is_idle()
-    }
-
-    /// Return true if the rx register is not empty (and can be read)
-    fn is_rx_not_empty(&self) -> bool {
-        self.peripheral.is_rx_not_empty()
-    }
-
     /// Clear idle line interrupt flag
-    fn clear_idle_interrupt(&self) {
+    pub fn clear_idle_interrupt(&self) {
         self.peripheral.clear_idle_interrupt();
     }
 }
@@ -1363,12 +1355,6 @@ where
     /// know the internals of this API in its entirety.
     pub unsafe fn get_stream(&mut self) -> &mut STREAM {
         &mut self.stream
-    }
-
-    /// Wait for the transfer to complete.
-    #[inline(always)]
-    pub fn wait(&self) {
-        while !STREAM::get_transfer_complete_flag() {}
     }
 
     /// Applies all fields in DmaConfig.

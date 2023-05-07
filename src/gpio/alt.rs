@@ -1,5 +1,17 @@
+#[cfg(feature = "f2")]
+mod f2;
+#[cfg(feature = "f2")]
+pub use f2::*;
+
+#[cfg(feature = "f4")]
 mod f4;
+#[cfg(feature = "f4")]
 pub use f4::*;
+
+#[cfg(feature = "f7")]
+mod f7;
+#[cfg(feature = "f7")]
+pub use f7::*;
 
 macro_rules! extipin {
     ($( $(#[$attr:meta])* $PX:ident,)*) => {
@@ -63,6 +75,67 @@ macro_rules! extipin {
     };
 }
 use extipin;
+
+#[allow(unused)]
+macro_rules! analog {
+    ( $($(#[$docs:meta])* <$name:ident> for $(no: $NoPin:ident,)? [$(
+        $(#[$attr:meta])* $PX:ident<$A:literal>,
+    )*],)*) => {
+        $(
+            #[derive(Debug)]
+            $(#[$docs])*
+            pub enum $name {
+                $(
+                    None($NoPin<$Otype>),
+                )?
+
+                $(
+                    $(#[$attr])*
+                    $PX(gpio::$PX<Analog>),
+                )*
+            }
+
+            impl crate::Sealed for $name { }
+
+            $(
+                impl From<$NoPin<$Otype>> for $name {
+                    fn from(p: $NoPin<$Otype>) -> Self {
+                        Self::None(p)
+                    }
+                }
+            )?
+
+            $(
+                $(#[$attr])*
+                impl<MODE: PinMode> From<gpio::$PX<MODE>> for $name
+                {
+                    fn from(p: gpio::$PX<MODE>) -> Self {
+                        Self::$PX(p.into_mode())
+                    }
+                }
+
+                $(#[$attr])*
+                #[allow(irrefutable_let_patterns)]
+                impl<MODE> TryFrom<$name> for gpio::$PX<MODE>
+                where
+                    MODE: PinMode,
+                {
+                    type Error = ();
+
+                    fn try_from(a: $name) -> Result<Self, Self::Error> {
+                        if let $name::$PX(p) = a {
+                            Ok(p.into_mode())
+                        } else {
+                            Err(())
+                        }
+                    }
+                }
+            )*
+        )*
+    };
+}
+#[allow(unused)]
+use analog;
 
 macro_rules! pin {
     ( $($(#[$docs:meta])* <$name:ident, $Otype:ident> for $(no: $NoPin:ident,)? [$(
@@ -296,20 +369,23 @@ pub trait CanCommon {
 }
 
 // DFSDM pins
-#[cfg(feature = "dfsdm1")]
-pub trait DfsdmCommon {
+#[cfg(feature = "dfsdm")]
+pub trait DfsdmBasic {
     type Ckin0;
     type Ckin1;
-    type Ckin2;
-    type Ckin3;
     type Ckout;
     type Datin0;
     type Datin1;
+}
+#[cfg(feature = "dfsdm")]
+pub trait DfsdmGeneral: DfsdmBasic {
+    type Ckin2;
+    type Ckin3;
     type Datin2;
     type Datin3;
 }
-#[cfg(feature = "dfsdm2")]
-pub trait DfsdmAdvanced {
+#[cfg(feature = "dfsdm")]
+pub trait DfsdmAdvanced: DfsdmGeneral {
     type Ckin4;
     type Ckin5;
     type Ckin6;
